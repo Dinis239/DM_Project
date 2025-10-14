@@ -1,0 +1,18 @@
+Pre-processing:
+    - EDA
+        - Datatypes
+        - Feature distributions
+        - Identify Feature incosistencies
+    - Outliers
+        - Correct and explain
+    - Missing Values
+        - Correct and explain
+    - Feature Transformations
+        - Create new features
+    - Feature Selection
+        - Check Correlations and remove features if needed
+
+Clustering:
+    - Modeling:
+        - KMeans
+        -     
