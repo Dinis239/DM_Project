@@ -15,4 +15,6 @@ Pre-processing:
 Clustering:
     - Modeling:
         - KMeans
-        -     
+        -   
+
+        olaaaaa  
