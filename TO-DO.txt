@@ -3,6 +3,11 @@ Pre-processing:
         - Datatypes
         - Feature distributions
         - Identify Feature incosistencies
+            - 'Y' instead of 'Yes'
+            - Numerical variables aren't assigned numerical datatypes ('Service Time', 'Weight')
+                - They have '-' as a value, to indicate missing Datatypes
+            - Column 'Days since previous absence' has only 0s
+            - 'Years until retirement' has a minimum value of -1
     - Outliers
         - Correct and explain
     - Missing Values
