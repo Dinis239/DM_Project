@@ -5,6 +5,45 @@ import pandas as pd
 import math
 
 
+def distribution_plot_grid(data: pd.DataFrame,
+                           variables: list,
+                           color: str = None,
+                           edgecolor: str = 'black') -> None:
+    """
+    Plot a grid containing a histogram and a boxplot for each variable based
+    on the data.
+
+    Parameters:
+        ----------
+         - data (pd.DataFrame): The DataFrame containing the data.
+         - variables (list): The column names of the variables to be plotted.
+         - color (str, optional): Color for the bars. Defaults to None.
+         - edgecolor (str, optional): Color for the bars edges.
+         Defaults to 'black'.
+
+    Returns:
+        ----------
+         None, but a plot is produced
+    """
+    a = math.ceil(math.sqrt(len(variables)*2))
+    b = math.ceil(len(variables) * 2 / a)
+    _, axes = plt.subplots(a, b, figsize=(25, 25))
+    axes = axes.flatten()
+    i = 0
+    for column in variables:
+        sns.histplot(x=column, data=data, ax=axes[i], color=color,
+                     edgecolor=edgecolor)
+        sns.boxplot(x=column, data=data, ax=axes[i+1], color=color)
+        axes[i].set_title(column)
+        axes[i+1].set_title(column)
+        i += 2
+    axes_to_turn_off = (a * b) - (len(variables) * 2)
+    for i in range(1, axes_to_turn_off + 1):
+        axes[-i].axis('off')
+    plt.tight_layout()
+    plt.show()
+
+
 def histogram_grid(data: pd.DataFrame,
                    variables: list,
                    color: str = None,
@@ -77,6 +116,8 @@ def outlier_filter_IQR(data: pd.DataFrame, variables: list,
           "of our dataset")
     if return_dataframe:
         return data_no_out
+    else:
+        return None
 
 
 def outlier_count_IQR(data: pd.DataFrame, variables: list,
