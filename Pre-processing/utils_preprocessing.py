@@ -157,3 +157,25 @@ def outlier_count_IQR(data: pd.DataFrame, variables: list,
                                                    columns=['Variable',
                                                             'N Outliers'])])
     return outlier_count_df.set_index('Variable')
+
+
+def cor_heatmap(cor: pd.DataFrame) -> None:
+    '''
+    Plot a correlation heatmap
+
+    Function to plot a correlation heatmap from a dataframe of correlations.
+
+    Arguments:
+        ----------
+         - cor(pd.DataFrame): DataFrame of correlations between variables
+
+    Returns:
+        ----------
+         - None, although a heatmap is produced.
+    '''
+    mask = np.triu(np.ones_like(cor, dtype=bool))
+    plt.figure(figsize=(20, 16))
+    sns.heatmap(data=cor, annot=True,
+                cmap=sns.color_palette("coolwarm", as_cmap=True),
+                fmt='.2', mask=mask, vmin=-1, vmax=1)
+    plt.show()
