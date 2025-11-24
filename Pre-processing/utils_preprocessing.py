@@ -5,6 +5,45 @@ import pandas as pd
 import math
 
 
+def outlier_count_IQR(data: pd.DataFrame, variables: list,
+                      outlier_type: str = 'normal') -> pd.DataFrame:
+    """
+    Evaluate the outliers of a dataset
+
+    Returns a dataframe including the variable names and the
+    correspoding number of outliers, according to the outlier_type
+    parameter.
+
+    Parameters:
+        ----------
+         - data (pd.DataFrame): The DataFrame containing the data.
+         - variables (list): The column names of the variables to be evaluated.
+         - type (string): The type of outliers to evaluate.
+         Defaults to 'normal'.
+    Returns:
+        ----------
+         - outlier_count_df (pd.DataFrame): Dataframe containing outlier counts
+         by variable.
+    """
+    outlier_count_df = pd.DataFrame(columns=['Variable', 'N Outliers'])
+    dic_type = {'normal': 1.5, 'extreme': 3}
+    data_no_out_var = data.copy()
+    for variable in variables:
+        P_25 = np.nanpercentile(data[variable], 25)
+        P_75 = np.nanpercentile(data[variable], 75)
+        IQR = P_75 - P_25
+        data_no_out_var = data[(data[variable] >= P_75 +
+                                dic_type[outlier_type] * IQR) |
+                               (data[variable] <= P_25 -
+                                dic_type[outlier_type] * IQR)]
+        outlier_count_df = pd.concat([outlier_count_df,
+                                      pd.DataFrame([[variable,
+                                                     len(data_no_out_var)]],
+                                                   columns=['Variable',
+                                                            'N Outliers'])])
+    return outlier_count_df.set_index('Variable')
+
+
 def distribution_plot_grid(data: pd.DataFrame,
                            variables: list,
                            color: str = None,
@@ -28,14 +67,17 @@ def distribution_plot_grid(data: pd.DataFrame,
     a = math.ceil(math.sqrt(len(variables)*2))
     b = math.ceil(len(variables) * 2 / a)
     _, axes = plt.subplots(a, b, figsize=(25, 25))
+    outlier_count = outlier_count_IQR(data, variables, outlier_type='normal')
     axes = axes.flatten()
     i = 0
     for column in variables:
         sns.histplot(x=column, data=data, ax=axes[i], color=color,
                      edgecolor=edgecolor)
         sns.boxplot(x=column, data=data, ax=axes[i+1], color=color)
-        axes[i].set_title(column)
-        axes[i+1].set_title(column)
+        axes[i].set_title(f'Column: {column} | Outliers: '
+                          f'{outlier_count.loc[column, 'N Outliers']} outliers')
+        axes[i+1].set_title(f'Column: {column} | Outliers: '
+                            f'{outlier_count.loc[column, 'N Outliers']} outliers')
         i += 2
     axes_to_turn_off = (a * b) - (len(variables) * 2)
     for i in range(1, axes_to_turn_off + 1):
@@ -118,45 +160,6 @@ def outlier_filter_IQR(data: pd.DataFrame, variables: list,
         return data_no_out
     else:
         return None
-
-
-def outlier_count_IQR(data: pd.DataFrame, variables: list,
-                      outlier_type: str = 'normal') -> pd.DataFrame:
-    """
-    Evaluate the outliers of a dataset
-
-    Returns a dataframe including the variable names and the
-    correspoding number of outliers, according to the outlier_type
-    parameter.
-
-    Parameters:
-        ----------
-         - data (pd.DataFrame): The DataFrame containing the data.
-         - variables (list): The column names of the variables to be evaluated.
-         - type (string): The type of outliers to evaluate.
-         Defaults to 'normal'.
-    Returns:
-        ----------
-         - outlier_count_df (pd.DataFrame): Dataframe containing outlier counts
-         by variable.
-    """
-    outlier_count_df = pd.DataFrame(columns=['Variable', 'N Outliers'])
-    dic_type = {'normal': 1.5, 'extreme': 3}
-    data_no_out_var = data.copy()
-    for variable in variables:
-        P_25 = np.nanpercentile(data[variable], 25)
-        P_75 = np.nanpercentile(data[variable], 75)
-        IQR = P_75 - P_25
-        data_no_out_var = data[(data[variable] >= P_75 +
-                                dic_type[outlier_type] * IQR) |
-                               (data[variable] <= P_25 -
-                                dic_type[outlier_type] * IQR)]
-        outlier_count_df = pd.concat([outlier_count_df,
-                                      pd.DataFrame([[variable,
-                                                     len(data_no_out_var)]],
-                                                   columns=['Variable',
-                                                            'N Outliers'])])
-    return outlier_count_df.set_index('Variable')
 
 
 def cor_heatmap(cor: pd.DataFrame) -> None:

@@ -10,7 +10,7 @@ def visualize_dimensionality_reduction(transformation: np.array,
 
     Arguments:
         ----------
-         - transformation(np.array): Array of t-SNE/UMAP output
+         - transformation(np.array): Array of dimensionality reduction output
          - targets(list): Series containing the assigned
          cluster of all observations
 
