@@ -1,25 +1,37 @@
 Pre-processing:
     - EDA
-        - Datatypes
-        - Feature distributions
-        - Identify Feature incosistencies
-            - 'Y' instead of 'Yes'
-            - Numerical variables aren't assigned numerical datatypes ('Service Time', 'Weight')
-                - They have '-' as a value, to indicate missing Datatypes
-            - Column 'Days since previous absence' has only 0s
-            - 'Years until retirement' has a minimum value of -1
-    - Outliers
-        - Correct and explain
-    - Missing Values
-        - Correct and explain
-    - Feature Transformations
-        - Create new features
-    - Feature Selection
-        - Check Correlations and remove features if needed
+        DONE - Datatypes
+        DONE -  Feature distributions
+        DONE -  Identify Feature incosistencies
+            DONE - 'Y' instead of 'Yes'
+            DONE -  Numerical variables aren't assigned numerical datatypes ('Service Time', 'Weight')
+                DONE - They have '-' as a value, to indicate missing Datatypes
+            DONE - Column 'Days since previous absence' has only 0s
+            DONE (in outliers) - 'Years until retirement' has a minimum value of -1
+                - Add a line acknowledging the issue
+        DONE - Outliers
+            DONE -  Correct and explain
+        - Missing Values
+            DONE -  Correct and explain
+            - Explain KNNImputer
+            - Round imputed Values where required
+        DONE - Feature Transformations
+            DONE - Create new features
+        DONE -  Feature Selection
+            DONE - Check Correlations and remove features if needed
 
 Clustering:
+    - Discplinary failure cluster?
     - Modeling:
         - KMeans
-        -   
+        - Hierarchical
+        - SOM
+        - DBSCAN  
 
-        olaaaaa  
+Knowledge in Action:
+    - Streamlit Dashboard:
+        WIP - For EDA
+        - For cluster analysis
+    - KNN for cluster prediction
+
+Report
