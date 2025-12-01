@@ -42,6 +42,8 @@ def boxplot_grid(data: pd.DataFrame,
         ----------
          - data (pd.DataFrame): The DataFrame containing the data.
          - variables (list): The column names of the variables to be plotted.
+         - cluster_var (str): The name of the variable containing the cluster
+         assigments for which each boxplot will be made
          - color (str, optional): Color for the bars. Defaults to None.
          - edgecolor (str, optional): Color for the bars edges.
          Defaults to 'black'.
@@ -52,11 +54,12 @@ def boxplot_grid(data: pd.DataFrame,
     """
     a = math.ceil(len(variables)/3)
     b = 3
-    fig, axes = plt.subplots(a, b, figsize=(25, 75))
+    _, axes = plt.subplots(a, b, figsize=(25, 25))
     axes = axes.flatten()
     for i, column in enumerate(variables):
-        sns.boxplot(x=data[cluster_var], y=column,
-                    data=data, ax=axes[i], color=color)
+        sns.boxplot(x=cluster_var, y=column,
+                    data=data, ax=axes[i], color=color,
+                    palette='rainbow', hue=cluster_var)
         axes[i].set_xticklabels(axes[i].get_xticklabels(), rotation=45)
         axes[i].set_title(column)
     axes_to_turn_off = (a * b) - len(variables)
