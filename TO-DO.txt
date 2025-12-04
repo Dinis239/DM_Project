@@ -30,8 +30,7 @@ Clustering:
 
 Knowledge in Action:
     - Streamlit Dashboard:
-        WIP - For EDA
-        - For cluster analysis
-    - KNN for cluster prediction
+        DONE - For EDA
+        DONE - For cluster analysis
 
 Report
