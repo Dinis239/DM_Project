@@ -229,8 +229,8 @@ with col3:
               value=get_metric(df_filtered, 'body_mass_index'))
 with col4:
     st.metric(
-        label="Avg. level of Higher Education (%)",
-        value=get_metric(df_filtered, 'higher_education')
+        label="Avg. Transportation Expense (€)",
+        value=get_metric(df_filtered, 'transportation_expense')
     )
 with col5:
     st.metric(

@@ -28,9 +28,10 @@ This section focuses on understanding the raw data and main demographic
 trends in employee absence.
 Here you can:
 * **Filter** the data by demographic factors (e.g., Age, BMI, Education).
-* Visualize **univariate distributions** (histograms).
+* Visualize **univariate distributions** (histograms and boxplots for numerical
+            variables and bar charts for categorical variables).
 * Explore **bivariate relationships** (scatter plots) between variables like
-**Age vs. Absenteeism Hours**.
+**Age vs. Absenteeism Hours** for example.
 * Identify **raw patterns** before any modeling or clustering is applied.
 """)
 
