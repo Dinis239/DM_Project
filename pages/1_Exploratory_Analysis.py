@@ -2,16 +2,22 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import pandas.api.types as types
+import os
 
 # 1. Global Column Definitions and Mapping
 
 CORE_NUMERICAL = ['transportation_expense', 'service_time',
                   'years_until_retirement', 'body_mass_index',
-                  'absenteeism_time_in_hours', 'commute_cost_per_km']
+                  'absenteeism_time_in_hours', 'commute_cost_per_km', 'age']
 CORE_COUNT = ['number_of_children', 'number_of_pets']
 CORE_CATEGORICAL = ['month_of_absence', 'reason_for_absence', 'weekday_type']
 CORE_FLAG = ['disciplinary_failure', 'higher_education', 'risk_behavior']
 ALL_NUMERICAL_VARS = CORE_NUMERICAL + CORE_COUNT
+
+MONTH_ORDER = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+]
 
 # Map of original column names to user-friendly display names.
 COLUMN_MAP = {
@@ -41,8 +47,8 @@ def map_flags_to_yes_no(dataframe, flag_columns):
     for col in flag_columns:
         if col in dataframe.columns:
             # Safely convert to integer before mapping
-            dataframe[col] = pd.to_numeric(dataframe[col],
-                                           errors='coerce').fillna(0).astype(int)
+            dataframe[col] = pd.to_numeric(
+                dataframe[col]).astype(int)
             dataframe[col] = dataframe[col].map(mapping).astype('category')
     return dataframe
 
@@ -53,13 +59,14 @@ def map_flags_to_yes_no(dataframe, flag_columns):
 def load_data(file_path):
     """Loads the data, sets index, and cleans flag values."""
     try:
+        # Load data
         data = pd.read_csv(file_path, index_col=0)
 
         # Ensure count columns are integers
         for col in CORE_COUNT:
             if col in data.columns:
-                data[col] = pd.to_numeric(data[col],
-                                          errors='coerce').fillna(0).astype(int)
+                data[col] = pd.to_numeric(
+                    data[col]).astype(int)
 
         # Map 1/0 to 'Yes'/'No' for flag columns
         data = map_flags_to_yes_no(data, CORE_FLAG)
@@ -67,10 +74,12 @@ def load_data(file_path):
         return data
 
     except FileNotFoundError:
-        st.error(f"Error: The file '{file_path}' was not found. "
-                 "Please verify the path relative to your dashboard.py file.")
+        st.error(
+            f"Error: The file '{file_path}' was not found. "
+            f"Please verify the path relative to your dashboard.py file. "
+            f"(Checked path: {os.getcwd()}/{file_path})"
+        )
         st.stop()
-        return pd.DataFrame()
 
 
 # Global Data Loading
@@ -87,7 +96,6 @@ all_numerical_cols = [col for col in all_cols
 DISPLAY_OPTIONS = [COLUMN_MAP[col] for col in all_cols
                    if col in COLUMN_MAP]
 
-# -----------------------------------------------------------------------------
 # 3. Sidebar for Data Filtering
 
 st.sidebar.header("🔍 Data Filtering")
@@ -126,8 +134,8 @@ def apply_filters(dataframe):
         if col_name in dataframe.columns:
             display_name = COLUMN_MAP[col_name]
             # Ensure min/max values are based on the column's data type
-            min_val, max_val = float(dataframe[col_name].min()), \
-                               float(dataframe[col_name].max())
+            min_val = float(dataframe[col_name].min())
+            max_val = float(dataframe[col_name].max())
 
             # Determine step size and format based on variable type
             step = 1.0
@@ -137,13 +145,14 @@ def apply_filters(dataframe):
             if is_count:
                 step = 1
                 format_str = "%d"
-                # CRITICAL FIX: Cast min/max to int when step is int
-                min_val, max_val = int(min_val), int(max_val)
-
+                # Cast min/max to int when step is int
+                min_val = int(min_val)
+                max_val = int(max_val)
 
             value_tup = (min_val, max_val)
-            # Children and Pets filter is just a maximum value, not a range slider
+            # Children and Pets filter is just a maximum value
             if is_count:
+                # For count variables, use max_val as the default max selection
                 value_tup = max_val
 
             val_range = st.sidebar.slider(
@@ -157,9 +166,11 @@ def apply_filters(dataframe):
 
             if is_count:
                 # Filter: <= selected max value
-                df_filtered = df_filtered[df_filtered[col_name] <= val_range]
+                df_filtered = df_filtered[
+                    df_filtered[col_name] <= val_range
+                ]
             else:
-                # Filter: between min and max range (expects tuple/list)
+                # Filter: between min and max range
                 df_filtered = df_filtered[
                     (df_filtered[col_name] >= val_range[0]) &
                     (df_filtered[col_name] <= val_range[1])
@@ -171,66 +182,60 @@ def apply_filters(dataframe):
 # Apply all filters to get the final data used for visualization
 df_filtered = apply_filters(data_for_analysis)
 
-# -----------------------------------------------------------------------------
-
 # 4. Dashboard Title and Introduction / Metrics
 st.title("📊 Exploratory Data Analysis")
-st.markdown(f"**Data Loaded:** **{data_for_analysis.shape[0]}** total "
-            f"observations. **{df_filtered.shape[0]}** observations meet the "
-            "current filter criteria.")
-
+st.markdown(f"Data Source: **{data_for_analysis.shape[0]}** total absences")
 st.header("Quick Filtered Data Summary")
 
 
-def get_metric(dataframe, col, func):
-    """Calculates and formats a key metric."""
+def get_metric(dataframe, col):
+    """Calculates the mean and formats a key metric."""
     if dataframe.empty or col not in dataframe.columns:
         return "N/A"
 
-    if func == 'count':
-        return str(dataframe.shape[0])
-
     if types.is_numeric_dtype(dataframe[col]):
-        if func == 'mean':
-            return f"{dataframe[col].mean():.2f}"
-        if func == 'std':
-            return f"{dataframe[col].std():.2f}"
-        if func == 'median':
-            return f"{dataframe[col].median():.2f}"
+        return f"{dataframe[col].mean():.1f}"
     return "N/A"
 
 
-# Metrics Row 1
-col1, col2, col3, col4 = st.columns(4)
+# Displaying relevant metrics.
+col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
-    st.metric(label="Total Obs. (Filtered)",
-              value=get_metric(df_filtered, 'absenteeism_time_in_hours',
-                               'count'))
+    st.metric(label="Filtered Absences",
+              value=df_filtered.shape[0])
 with col2:
-    st.metric(label="Avg. Absenteeism (Hours)",
-              value=get_metric(df_filtered, 'absenteeism_time_in_hours',
-                               'mean'))
+    st.metric(
+        label="Avg. Absenteeism (Hours)",
+        value=get_metric(df_filtered, 'absenteeism_time_in_hours')
+    )
 with col3:
-    st.metric(label="Median Absenteeism (Hours)",
-              value=get_metric(df_filtered, 'absenteeism_time_in_hours',
-                               'median'))
+    st.metric(label="Avg. BMI",
+              value=get_metric(df_filtered, 'body_mass_index'))
 with col4:
-    st.metric(label="Std. Dev. Absenteeism (Hours)",
-              value=get_metric(df_filtered, 'absenteeism_time_in_hours',
-                               'std'))
+    st.metric(
+        label="Avg. Service Time (Years)",
+        value=get_metric(df_filtered, 'service_time')
+    )
+with col5:
+    st.metric(
+        label="Avg. Transportation Expense",
+        value=get_metric(df_filtered, 'transportation_expense')
+    )
 
 
 st.divider()
 
-# 5. Feature Distribution Plot
+# 5. Feature Distribution Plot (Plotly)
 
 if df_filtered.empty:
-    st.error("No observations match the current filter criteria. "
-             "Please adjust your filters.")
+    st.error(
+        "No observations match the current filter criteria. "
+        "Please adjust your filters."
+    )
     st.stop()
 
-st.header("Feature Distribution Plot")
+st.header("Feature Distribution Plot (Plotly)")
 
 feature_display_name = st.selectbox(
     "Select a feature to visualize its distribution on the FILTERED data:",
@@ -238,62 +243,133 @@ feature_display_name = st.selectbox(
 )
 feature_to_plot = DISPLAY_TO_VAR[feature_display_name]
 
+# Placeholder for the Plotly figure
+fig = None
+
 if feature_to_plot in ALL_NUMERICAL_VARS:
-    # Histogram for numerical/count data
-    fig = px.histogram(
-        df_filtered,
-        x=feature_to_plot,
-        title=f'Histogram of {feature_display_name} (Filtered Data)',
-        marginal="box",
-        color_discrete_sequence=['#FF7F0E']
+    # Option to select plot type
+    plot_type = st.radio(
+        "Select Plot Type:",
+        ('Histogram', 'Boxplot'),
+        key='num_plot_type'
     )
-    fig.update_layout(xaxis_title=feature_display_name, yaxis_title="Count")
-    st.plotly_chart(fig, use_container_width=True)
+
+    if plot_type == 'Histogram':
+        fig = px.histogram(
+            df_filtered,
+            x=feature_to_plot,
+            nbins=30,  # Default number of bins
+            title=(f'Histogram of {feature_display_name} '
+                   f'(Filtered Data)'),
+            labels={feature_to_plot: feature_display_name,
+                    'count': 'Count'},
+            color_discrete_sequence=['#FF7F0E']
+        )
+        fig.update_layout(bargap=0.05)  # Add slight gap between bars
+
+    elif plot_type == 'Boxplot':
+        fig = px.box(
+            df_filtered,
+            x=feature_to_plot,
+            title=(f'Boxplot of {feature_display_name} '
+                   f'(Filtered Data)'),
+            labels={feature_to_plot: feature_display_name},
+            color_discrete_sequence=['#FF7F0E']
+        )
+        # Remove Y-axis title for horizontal boxplot
+        fig.update_yaxes(title_text="")
 
 elif feature_to_plot in CORE_CATEGORICAL or feature_to_plot in CORE_FLAG:
-    # Bar chart for categorical and binary data
-    df_counts = df_filtered[feature_to_plot].value_counts().reset_index(
-        name='Count')
+    # Count plot (Bar chart) for categorical and binary data
+
+    # Define plot order for categorical variables
+    if feature_to_plot == 'month_of_absence':
+        category_order = MONTH_ORDER
+    elif pd.api.types.is_categorical_dtype(
+            data_for_analysis[feature_to_plot]
+    ):
+        category_order = (
+            data_for_analysis[feature_to_plot].cat.categories.tolist()
+        )
+    else:
+        category_order = df_filtered[feature_to_plot].unique().tolist()
+
+    # Calculate counts manually for plotting
+    df_counts = df_filtered[feature_to_plot].value_counts().reset_index()
     df_counts.columns = [feature_to_plot, 'Count']
+
+    # Ensure correct order if specified
+    category_orders_dict = {feature_to_plot: category_order}
 
     fig = px.bar(
         df_counts,
         x=feature_to_plot,
         y='Count',
-        title=f'Count of {feature_display_name} (Filtered Data)')
-    fig.update_xaxes(title=feature_display_name, tickangle=45)
+        category_orders=category_orders_dict,
+        title=(f'Count of {feature_display_name} '
+               f'(Filtered Data)'),
+        labels={feature_to_plot: feature_display_name,
+                'Count': 'Count'},
+        color_discrete_sequence=['#FF7F0E']
+    )
+    # Rotate x-labels for readability
+    fig.update_xaxes(tickangle=45)
+
+
+# Display the Plotly figure
+if fig:
     st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
 
-# 6. Scatter Plot for Variable Relationships
-st.header("Variable Relationship Explorer (Scatter Plot)")
+# 6. Variable Relationship Explorer (Plotly Scatter)
+st.header("Variable Relationship Explorer (Plotly Scatter)")
 
 numerical_display_options = [COLUMN_MAP[col] for col in all_numerical_cols
                              if col in COLUMN_MAP]
 
 if numerical_display_options:
-    default_x_display = COLUMN_MAP.get('absenteeism_time_in_hours',
-                                       numerical_display_options[0])
-    default_y_display = COLUMN_MAP.get('body_mass_index',
-                                       numerical_display_options[0])
+    default_x_display = COLUMN_MAP.get(
+        'absenteeism_time_in_hours',
+        numerical_display_options[0]
+    )
+    default_y_display = COLUMN_MAP.get(
+        'body_mass_index',
+        numerical_display_options[0]
+    )
 
     col_x, col_y = st.columns(2)
 
     with col_x:
+        # Set default index safely
+        try:
+            default_x_index = numerical_display_options.index(
+                default_x_display
+            )
+        except ValueError:
+            default_x_index = 0
+
         scatter_x_display = st.selectbox(
             "Select **X-axis** Variable:",
             options=numerical_display_options,
-            index=(numerical_display_options.index(default_x_display)
-                   if default_x_display in numerical_display_options else 0)
+            index=default_x_index,
+            key='scatter_x_select'
         )
 
     with col_y:
+        # Set default index safely
+        try:
+            default_y_index = numerical_display_options.index(
+                default_y_display
+            )
+        except ValueError:
+            default_y_index = 0
+
         scatter_y_display = st.selectbox(
             "Select **Y-axis** Variable:",
             options=numerical_display_options,
-            index=(numerical_display_options.index(default_y_display)
-                   if default_y_display in numerical_display_options else 0)
+            index=default_y_index,
+            key='scatter_y_select'
         )
 
     scatter_x = DISPLAY_TO_VAR.get(scatter_x_display)
@@ -302,37 +378,34 @@ if numerical_display_options:
     if scatter_x in df_filtered.columns and scatter_y in df_filtered.columns:
         if (types.is_numeric_dtype(df_filtered[scatter_x]) and
                 types.is_numeric_dtype(df_filtered[scatter_y])):
-            scatter_fig = px.scatter(
+
+            # Plotly scatter plot with OLS trendline
+            fig_scatter = px.scatter(
                 df_filtered,
                 x=scatter_x,
                 y=scatter_y,
-                title=(f'{scatter_x_display} vs {scatter_y_display} '
-                       '(Filtered Data)'),
                 trendline="ols",
-                opacity=0.6
-            )
-            scatter_fig = px.scatter(
-                df_filtered,
-                x=scatter_x,
-                y=scatter_y,
                 title=(f'{scatter_x_display} vs {scatter_y_display} '
-                       '(Filtered Data)'),
-                trendline="ols",
-                opacity=0.6
+                       f'(Filtered Data)'),
+                labels={scatter_x: scatter_x_display,
+                        scatter_y: scatter_y_display},
+                opacity=0.6,
+                color_discrete_sequence=["#3700FF"],
+                trendline_color_override='red' 
             )
 
-            scatter_fig.update_traces(
-                selector={'mode': 'lines'},
-                line={'color': 'red', 'width': 3}
-            )
-            st.plotly_chart(scatter_fig, use_container_width=True)
+            st.plotly_chart(fig_scatter, use_container_width=True)
         else:
-            st.warning(f"Columns '{scatter_x_display}' and/or "
-                       f"'{scatter_y_display}' are not strictly numeric in the "
-                       "filtered data. Cannot create scatter plot.")
+            st.warning(
+                f"Columns '{scatter_x_display}' and/or "
+                f"'{scatter_y_display}' are not strictly numeric in the"
+                f" filtered data. Cannot create scatter plot."
+            )
     else:
-        st.warning("Selected columns were not found in the loaded dataset. "
-                   "Please check your data file.")
+        st.warning(
+            "Selected columns were not found in the loaded dataset. "
+            "Please check your data file."
+        )
 
 else:
     st.warning("No numerical columns found to create a scatter plot.")

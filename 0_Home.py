@@ -8,8 +8,8 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- Sidebar Customization ---
-# --- Main Page Content (Home/Landing Page) ---
+# Sidebar Customization 
+# Main Page Content (Home/Landing Page) 
 
 st.title("📊 Employee Absence Analysis Dashboard")
 st.markdown("""
