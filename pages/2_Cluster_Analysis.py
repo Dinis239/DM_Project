@@ -139,8 +139,23 @@ def toggle_descriptions():
         not st.session_state.show_descriptions
     )
 
+# Initializing toggle state for centroid visibility
+
+
+if 'show_centroids' not in st.session_state:
+    st.session_state.show_centroids = True
+
+# Function that toggles description visibility
+
+
+def toggle_centroids():
+    st.session_state.show_centroids = (
+        not st.session_state.show_centroids
+    )
 
 # Section for cluster filter selection
+
+
 st.header("Filter Clusters")
 st.markdown(
     "Use the controls below to select the clusters you want to "
@@ -232,17 +247,28 @@ if not df_classified.empty:
 st.markdown("---")
 
 # SECTION 2: Table of centroid values
-st.header("Detailed Centroids (Mean Values)")
-
-if description_col_name in df_centroids_display.columns:
-    df_centroid_values = df_centroids_display.drop(
-        columns=[description_col_name]
+st.button(
+    (
+        'Hide'
+        if st.session_state.show_centroids
+        else 'Show'
     )
-else:
-    df_centroid_values = df_centroids_display.copy()
+    + " Centroids",
+    on_click=toggle_centroids,
+)
 
-# Show centroid table
-st.dataframe(df_centroid_values, hide_index=True, use_container_width=True)
+if st.session_state.show_centroids:
+    st.header("Detailed Centroids (Mean Values)")
+
+    if description_col_name in df_centroids_display.columns:
+        df_centroid_values = df_centroids_display.drop(
+            columns=[description_col_name]
+        )
+    else:
+        df_centroid_values = df_centroids_display.copy()
+
+    # Show centroid table
+    st.dataframe(df_centroid_values, hide_index=True, use_container_width=True)
 
 st.markdown("---")
 
