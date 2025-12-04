@@ -237,8 +237,8 @@ with col4:
     )
 with col5:
     st.metric(
-        label="Avg. Transportation Expense",
-        value=get_metric(df_filtered, 'transportation_expense')
+        label="Avg. Age",
+        value=get_metric(df_filtered, 'age')
     )
 
 
@@ -253,7 +253,7 @@ if df_filtered.empty:
     )
     st.stop()
 
-st.header("Feature Distribution Plot (Plotly)")
+st.header("Feature Distribution Plot")
 
 feature_display_name = st.selectbox(
     "Select a feature to visualize its distribution on the FILTERED data:",
@@ -341,7 +341,7 @@ if fig:
 st.divider()
 
 # 6. Variable Relationship Explorer (Plotly Scatter)
-st.header("Variable Relationship Explorer (Plotly Scatter)")
+st.header("Variable Relationship Explorer")
 
 numerical_display_options = [COLUMN_MAP[col] for col in all_numerical_cols
                              if col in COLUMN_MAP]
