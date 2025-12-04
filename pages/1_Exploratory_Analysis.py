@@ -5,6 +5,14 @@ import pandas.api.types as types
 import os
 
 # 1. Global Column Definitions and Mapping
+# Used for filtering and plotting appropriate
+# visualization types
+
+# CORE_NUMERICAL: Numeric features used for quantitative analysis
+# CORE_COUNT: Discrete count-based variables
+# CORE_CATEGORICAL: Categorical fields representing labels or classes
+# CORE_FLAG: Binary indicator variables
+# ALL_NUMERICAL_VARS: Combined numeric and count variables
 
 CORE_NUMERICAL = ['transportation_expense', 'service_time',
                   'years_until_retirement', 'body_mass_index',
@@ -14,12 +22,16 @@ CORE_CATEGORICAL = ['month_of_absence', 'reason_for_absence', 'weekday_type']
 CORE_FLAG = ['disciplinary_failure', 'higher_education', 'risk_behavior']
 ALL_NUMERICAL_VARS = CORE_NUMERICAL + CORE_COUNT
 
+# Creating a month order constant to use for plotting in the correct order
 MONTH_ORDER = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
 ]
 
 # Map of original column names to user-friendly display names.
+# Used for more clarity and interpretability in the dashboard.
+# A reverse map is also created.
+
 COLUMN_MAP = {
     'transportation_expense': 'Transportation Expense',
     'service_time': 'Service Time (Years)',
@@ -73,6 +85,8 @@ def load_data(file_path):
 
         return data
 
+    # The code below should never be needed, but it's there
+    # in case there's an issue and the file is missing.
     except FileNotFoundError:
         st.error(
             f"Error: The file '{file_path}' was not found. "
@@ -86,6 +100,7 @@ def load_data(file_path):
 FILE_PATH = 'Datasets/data_for_dashboard.csv'
 data_for_analysis = load_data(FILE_PATH)
 
+# Stop if the loaded data is empty
 if data_for_analysis.empty:
     st.stop()
 
@@ -99,6 +114,9 @@ DISPLAY_OPTIONS = [COLUMN_MAP[col] for col in all_cols
 # 3. Sidebar for Data Filtering
 
 st.sidebar.header("🔍 Data Filtering")
+
+# This function applies the filters defined in the sidebar
+# of the dashboard.
 
 
 def apply_filters(dataframe):
@@ -391,7 +409,7 @@ if numerical_display_options:
                         scatter_y: scatter_y_display},
                 opacity=0.6,
                 color_discrete_sequence=["#3700FF"],
-                trendline_color_override='red' 
+                trendline_color_override='red'
             )
 
             st.plotly_chart(fig_scatter, use_container_width=True)
