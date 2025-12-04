@@ -226,7 +226,9 @@ if not df_classified.empty:
         y='Count',
         title='Number of Observations per Cluster',
         color='Final_Cluster',
+        labels={'Final_Cluster': 'Cluster ID'},
     )
+    fig_bar.update_layout(showlegend=False)
 
     st.plotly_chart(fig_bar, use_container_width=True)
 
