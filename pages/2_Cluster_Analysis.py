@@ -9,7 +9,6 @@ import pandas.api.types as types
 INTERPRETABLE_FEATURES = [
     'transportation_expense', 'body_mass_index',
     'absenteeism_time_in_hours', 'age', 'commute_cost_per_km',
-    'service_time', 'years_until_retirement',
     'number_of_children', 'number_of_pets',
     'disciplinary_failure', 'higher_education',
     'risk_behavior',
@@ -28,8 +27,6 @@ def create_display_map(df_columns):
     # Direct mappings for standard variables
     mapping = {
         'transportation_expense': 'Transportation Expense',
-        'service_time': 'Service Time (Years)',
-        'years_until_retirement': 'Years Until Retirement',
         'body_mass_index': 'Body Mass Index (BMI)',
         'absenteeism_time_in_hours': 'Absenteeism Time (Hours)',
         'age': 'Age',

@@ -14,8 +14,7 @@ import os
 # CORE_FLAG: Binary indicator variables
 # ALL_NUMERICAL_VARS: Combined numeric and count variables
 
-CORE_NUMERICAL = ['transportation_expense', 'service_time',
-                  'years_until_retirement', 'body_mass_index',
+CORE_NUMERICAL = ['transportation_expense', 'body_mass_index',
                   'absenteeism_time_in_hours', 'commute_cost_per_km', 'age']
 CORE_COUNT = ['number_of_children', 'number_of_pets']
 CORE_CATEGORICAL = ['month_of_absence', 'reason_for_absence', 'weekday_type']
@@ -34,8 +33,6 @@ MONTH_ORDER = [
 
 COLUMN_MAP = {
     'transportation_expense': 'Transportation Expense',
-    'service_time': 'Service Time (Years)',
-    'years_until_retirement': 'Years Until Retirement',
     'body_mass_index': 'Body Mass Index (BMI)',
     'absenteeism_time_in_hours': 'Absenteeism Time (Hours)',
     'commute_cost_per_km': 'Commute Cost (per km)',
@@ -232,8 +229,8 @@ with col3:
               value=get_metric(df_filtered, 'body_mass_index'))
 with col4:
     st.metric(
-        label="Avg. Service Time (Years)",
-        value=get_metric(df_filtered, 'service_time')
+        label="Avg. level of Higher Education (%)",
+        value=get_metric(df_filtered, 'higher_education')
     )
 with col5:
     st.metric(
