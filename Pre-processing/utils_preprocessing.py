@@ -75,45 +75,13 @@ def distribution_plot_grid(data: pd.DataFrame,
                      edgecolor=edgecolor)
         sns.boxplot(x=column, data=data, ax=axes[i+1], color=color)
         axes[i].set_title(f'Column: {column} | Outliers: '
-                          f'{outlier_count.loc[column, 'N Outliers']} outliers')
+                          f'{outlier_count.loc[column, 'N Outliers']} '
+                          'outliers')
         axes[i+1].set_title(f'Column: {column} | Outliers: '
-                            f'{outlier_count.loc[column, 'N Outliers']} outliers')
+                            f'{outlier_count.loc[column, 'N Outliers']} '
+                            'outliers')
         i += 2
     axes_to_turn_off = (a * b) - (len(variables) * 2)
-    for i in range(1, axes_to_turn_off + 1):
-        axes[-i].axis('off')
-    plt.tight_layout()
-    plt.show()
-
-
-def histogram_grid(data: pd.DataFrame,
-                   variables: list,
-                   color: str = None,
-                   edgecolor: str = 'black') -> None:
-    """
-    Plot a histogram grid based on the data.
-
-    Parameters:
-        ----------
-         - data (pd.DataFrame): The DataFrame containing the data.
-         - variables (list): The column names of the variables to be plotted.
-         - color (str, optional): Color for the bars. Defaults to None.
-         - edgecolor (str, optional): Color for the bars edges.
-         Defaults to 'black'.
-
-    Returns:
-        ----------
-         None, but a plot is produced
-    """
-    a = math.ceil(math.sqrt(len(variables)))
-    b = math.ceil(len(variables) / a)
-    _, axes = plt.subplots(a, b, figsize=(25, 25))
-    axes = axes.flatten()
-    for i, column in enumerate(variables):
-        sns.histplot(x=column, data=data, ax=axes[i], color=color,
-                     edgecolor=edgecolor)
-        axes[i].set_title(column)
-    axes_to_turn_off = (a * b) - len(variables)
     for i in range(1, axes_to_turn_off + 1):
         axes[-i].axis('off')
     plt.tight_layout()

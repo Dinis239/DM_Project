@@ -8,7 +8,8 @@ import pandas as pd
 def visualize_dimensionality_reduction(transformation: np.array,
                                        targets: list) -> None:
     '''
-    Function to plot a scatter plot of the t-SNE or UMAP output.
+    Function to plot a scatter plot of the output of a 2D dimnsionality
+    reduction method, colored by a specified list of targets.
 
     Arguments:
         ----------
@@ -31,22 +32,21 @@ def visualize_dimensionality_reduction(transformation: np.array,
     plt.show()
 
 
-def boxplot_grid(data: pd.DataFrame, 
+def boxplot_grid(data: pd.DataFrame,
                  variables: list,
                  cluster_var: str,
                  color: str = None) -> None:
     """
-    Plot a boxploty grid based on the data.
+    Plot a grid of boxplots, split by the cluster variable,
+    based on the data.
 
     Parameters:
         ----------
          - data (pd.DataFrame): The DataFrame containing the data.
          - variables (list): The column names of the variables to be plotted.
          - cluster_var (str): The name of the variable containing the cluster
-         assigments for which each boxplot will be made
+         assigments for which each boxplot will be made.
          - color (str, optional): Color for the bars. Defaults to None.
-         - edgecolor (str, optional): Color for the bars edges.
-         Defaults to 'black'.
 
     Returns:
         ----------
