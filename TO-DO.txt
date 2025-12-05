@@ -1,5 +1,8 @@
 Pre-processing:
     - EDA
+        - EDA:
+            - Text for .info, .describe etc.
+            - Plots and explanations
         DONE - Datatypes
         DONE -  Feature distributions
         DONE -  Identify Feature incosistencies
@@ -11,25 +14,25 @@ Pre-processing:
                 - Add a line acknowledging the issue
         DONE - Outliers
             DONE -  Correct and explain
-        - Missing Values
+        DONE Missing Values
             DONE -  Correct and explain
-            - Explain KNNImputer
-            - Round imputed Values where required
+            DONE Explain KNNImputer
+            DONE Round imputed Values where required
         DONE - Feature Transformations
             DONE - Create new features
         DONE -  Feature Selection
             DONE - Check Correlations and remove features if needed
 
 Clustering:
-    - Discplinary failure cluster?
-    - Modeling:
+    DONE Discplinary failure cluster?
+    DONE Modeling:
         - KMeans
         - Hierarchical
         - SOM
         - DBSCAN  
 
 Knowledge in Action:
-    - Streamlit Dashboard:
+    DONE Streamlit Dashboard:
         DONE - For EDA
         DONE - For cluster analysis
 
