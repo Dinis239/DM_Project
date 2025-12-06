@@ -44,6 +44,41 @@ def outlier_count_IQR(data: pd.DataFrame, variables: list,
     return outlier_count_df.set_index('Variable')
 
 
+def count_plot_grid(data: pd.DataFrame,
+                    variables: list,
+                    color: str = None,
+                    edgecolor: str = 'black') -> None:
+    """
+    Plot a grid of count plots (bar charts) for the variables.
+    Parameters:
+        ----------
+         - data (pd.DataFrame): The DataFrame containing the data.
+         - variables (list): The column names of the variables to be plotted.
+         - color (str, optional): Color for the bars. Defaults to None.
+         - edgecolor (str, optional): Color for the bars edges.
+         Defaults to 'black'.
+
+    Returns:
+        ----------
+         None, but a plot is produced
+    """
+    a = math.ceil(math.sqrt(len(variables)))
+    b = math.ceil(len(variables) / a)
+    _, axes = plt.subplots(a, b, figsize=(25, 25))
+    axes = axes.flatten()
+    i = 0
+    for i in range(len(variables)):
+        sns.countplot(x=variables[i], data=data, ax=axes[i], color=color,
+                      edgecolor=edgecolor, palette='tab10')
+        axes[i].set_xticklabels(axes[i].get_xticklabels(), rotation=45)
+        axes[i].set_title(f'Column: {variables[i]}')
+    axes_to_turn_off = (a * b) - (len(variables))
+    for j in range(1, axes_to_turn_off + 1):
+        axes[-j].axis('off')
+    plt.tight_layout()
+    plt.show()
+
+
 def distribution_plot_grid(data: pd.DataFrame,
                            variables: list,
                            color: str = None,
