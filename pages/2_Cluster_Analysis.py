@@ -284,7 +284,7 @@ st.button(
 )
 
 if st.session_state.show_descriptions:
-    st.subheader("Cluster Descriptions")
+    st.subheader("Cluster Descriptions and Recommendations")
     st.markdown("---")
 
     if description_col_name in df_centroids_display.columns:
@@ -292,32 +292,8 @@ if st.session_state.show_descriptions:
         for i, row in df_centroids_display.iterrows():
             cluster_id = row['Cluster ID']
             raw_description = row[description_col_name]
-
-            lines = raw_description.strip().split('\n')
-            cleaned_markdown_list = []
-            cluster_name = None
-
-            for line in lines:
-                stripped_line = line.strip()
-                if stripped_line.startswith(('-', '*', '+')):
-                    item_text = stripped_line[1:].lstrip().capitalize()
-                    cleaned_markdown_list.append(f"* {item_text}")
-                elif stripped_line and not cluster_name:
-                    cluster_name = stripped_line.capitalize()
-                elif stripped_line:
-                    cleaned_markdown_list.append(
-                        stripped_line.capitalize()
-                    )
-
-            name_for_title = (
-                cluster_name
-                if cluster_name
-                else f"Cluster {cluster_id}"
-            )
-            description_content = "\n".join(cleaned_markdown_list)
-
-            st.markdown(f"## ⭐ {name_for_title}")
-            st.markdown(description_content)
+            st.markdown(f"## ⭐ {cluster_id}")
+            st.markdown(raw_description)
 
             if i < len(df_centroids_display) - 1:
                 st.markdown("---")
