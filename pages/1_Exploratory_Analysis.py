@@ -60,8 +60,6 @@ def map_flags_to_yes_no(dataframe, flag_columns):
 
 
 # 2. Data Loading
-
-@st.cache_data
 def load_data(file_path):
     """Loads the data, sets index, and cleans flag values."""
     try:
