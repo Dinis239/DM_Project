@@ -1,19 +1,17 @@
+import os
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import pandas.api.types as types
-import os
+import plotly.express as px
 
 # 1. Global Column Definitions and Mapping
 # Used for filtering and plotting appropriate
 # visualization types
-
 # CORE_NUMERICAL: Numeric features used for quantitative analysis
 # CORE_COUNT: Discrete count-based variables
 # CORE_CATEGORICAL: Categorical fields representing labels or classes
 # CORE_FLAG: Binary indicator variables
 # ALL_NUMERICAL_VARS: Combined numeric and count variables
-
 CORE_NUMERICAL = ['transportation_expense', 'body_mass_index',
                   'absenteeism_time_in_hours', 'commute_cost_per_km', 'age']
 CORE_COUNT = ['number_of_children', 'number_of_pets']
@@ -22,30 +20,28 @@ CORE_FLAG = ['disciplinary_failure', 'higher_education', 'risk_behavior']
 ALL_NUMERICAL_VARS = CORE_NUMERICAL + CORE_COUNT
 
 # Creating a month order constant to use for plotting in the correct order
-MONTH_ORDER = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-]
+MONTH_ORDER = ['January', 'February', 'March', 'April',
+               'May', 'June', 'July', 'August', 'September',
+               'October', 'November', 'December']
 
 # Map of original column names to user-friendly display names.
 # Used for more clarity and interpretability in the dashboard.
-# A reverse map is also created.
+# A reverse map is also created, to be used for mapping back
+# from selection options to dataset variable names.
+COLUMN_MAP = {'transportation_expense': 'Transportation Expense',
+              'body_mass_index': 'Body Mass Index (BMI)',
+              'absenteeism_time_in_hours': 'Absenteeism Time (Hours)',
+              'commute_cost_per_km': 'Commute Cost (per km)',
+              'number_of_children': 'Number of Children',
+              'number_of_pets': 'Number of Pets',
+              'month_of_absence': 'Month of Absence',
+              'reason_for_absence': 'Reason for Absence',
+              'weekday_type': 'Day Type',
+              'disciplinary_failure': 'Disciplinary Failure',
+              'higher_education': 'Higher Education',
+              'risk_behavior': 'Risk Behavior',
+              'age': 'Age'}
 
-COLUMN_MAP = {
-    'transportation_expense': 'Transportation Expense',
-    'body_mass_index': 'Body Mass Index (BMI)',
-    'absenteeism_time_in_hours': 'Absenteeism Time (Hours)',
-    'commute_cost_per_km': 'Commute Cost (per km)',
-    'number_of_children': 'Number of Children',
-    'number_of_pets': 'Number of Pets',
-    'month_of_absence': 'Month of Absence',
-    'reason_for_absence': 'Reason for Absence',
-    'weekday_type': 'Day Type',
-    'disciplinary_failure': 'Disciplinary Failure',
-    'higher_education': 'Higher Education',
-    'risk_behavior': 'Risk Behavior',
-    'age': 'Age'
-}
 DISPLAY_TO_VAR = {col_mapped: og_col
                   for og_col, col_mapped in COLUMN_MAP.items()}
 
@@ -86,11 +82,9 @@ def load_data(file_path):
     # The code below should never be needed, but it's there
     # in case there's an issue and the file is missing.
     except FileNotFoundError:
-        st.error(
-            f"Error: The file '{file_path}' was not found. "
-            f"Please verify the path relative to your dashboard.py file. "
-            f"(Checked path: {os.getcwd()}/{file_path})"
-        )
+        st.error(f"Error: The file '{file_path}' was not found. "
+                 f"Please verify the path relative to your dashboard.py file. "
+                 f"(Checked path: {os.getcwd()}/{file_path})")
         st.stop()
 
 
