@@ -301,17 +301,21 @@ if st.session_state.show_scatter:
 
     # Plotly scatter plot with a title and axis labels
     # and points colored based on cluster
-    fig_scatter = px.scatter(df_classified_filtered,
-                             x=scatter_x,
-                             y=scatter_y,
-                             color='Final_Cluster',
-                             title=(f"Clustering by {scatter_x_display} "
-                                    f"vs {scatter_y_display}"),
-                             labels={scatter_x: scatter_x_display,
-                                     scatter_y: scatter_y_display,
-                                     'Final_Cluster': 'Cluster'})
+    if scatter_x != scatter_y:
+        fig_scatter = px.scatter(df_classified_filtered,
+                                 x=scatter_x,
+                                 y=scatter_y,
+                                 color='Final_Cluster',
+                                 title=(f"Clustering by {scatter_x_display} "
+                                        f"vs {scatter_y_display}"),
+                                 labels={scatter_x: scatter_x_display,
+                                         scatter_y: scatter_y_display,
+                                         'Final_Cluster': 'Cluster'})
 
-    st.plotly_chart(fig_scatter, use_container_width=True)
+        st.plotly_chart(fig_scatter, use_container_width=True)
+    # Just in case the user selects the same variable twice
+    else:
+        st.info("Please select 2 different variables.")
 
 
 st.markdown("---")

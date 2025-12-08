@@ -309,20 +309,23 @@ with col_y:
 scatter_x = DISPLAY_TO_VAR.get(scatter_x_display)
 scatter_y = DISPLAY_TO_VAR.get(scatter_y_display)
 
+if scatter_x != scatter_y:
+    # Plotly scatter plot with OLS trendline
+    # with a title and axis labels
+    fig_scatter = px.scatter(filtered_df,
+                             x=scatter_x,
+                             y=scatter_y,
+                             trendline="ols",
+                             title=(f'{scatter_x_display} vs '
+                                    f'{scatter_y_display} '
+                                    f'(Filtered Data)'),
+                             labels={scatter_x: scatter_x_display,
+                                     scatter_y: scatter_y_display},
+                             opacity=0.6,
+                             color_discrete_sequence=["#009B0D"],
+                             trendline_color_override='red')
 
-# Plotly scatter plot with OLS trendline
-# with a title and axis labels
-fig_scatter = px.scatter(filtered_df,
-                         x=scatter_x,
-                         y=scatter_y,
-                         trendline="ols",
-                         title=(f'{scatter_x_display} vs '
-                                f'{scatter_y_display} '
-                                f'(Filtered Data)'),
-                         labels={scatter_x: scatter_x_display,
-                                 scatter_y: scatter_y_display},
-                         opacity=0.6,
-                         color_discrete_sequence=["#009B0D"],
-                         trendline_color_override='red')
-
-st.plotly_chart(fig_scatter, use_container_width=True)
+    st.plotly_chart(fig_scatter, use_container_width=True)
+# Just in case the user selects the same variable twice
+else:
+    st.info("Please select 2 different variables.")
