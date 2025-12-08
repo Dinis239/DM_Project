@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import pandas.api.types as types
 import plotly.express as px
 import streamlit as st
 from sklearn.preprocessing import MinMaxScaler
@@ -19,7 +18,7 @@ INTERPRETABLE_FEATURES = ['transportation_expense', 'body_mass_index',
 def create_display_map(df_columns):
     # Builds readable names for raw column names
     """
-    Creates a user-friendly mapping for column names.
+    Creates a user-friendly mapping for column display names.
     """
 
     # Direct mappings for standard variables
@@ -37,6 +36,8 @@ def create_display_map(df_columns):
                'Cluster Description': 'Cluster Description'}
 
     # Creates mappings for dynamic dummy-coded columns
+    # Replace underscores with spaces, capitalizes where
+    # needed
     for col_name in df_columns:
         if col_name not in mapping:
             if col_name.startswith('month_'):
@@ -91,6 +92,12 @@ def load_cluster_data(classified_path, centroids_path):
 
 df_classified, df_centroids = load_cluster_data(CLASSIFIED_FILE,
                                                 CENTROIDS_FILE)
+
+# Adding a fallback solution in case, for some unexpected reason,
+# the loaded files turn out to be empty
+if df_classified.empty or df_centroids.empty:
+    st.markdown("An error has occurred loading the data")
+    st.stop()
 
 # Create readable column maps (getting the display column name map,
 # and reverse map)
@@ -164,75 +171,52 @@ if not selected_clusters:
 # Filter centroids based on selection
 df_centroids_filtered = df_centroids[df_centroids['Final_Cluster']
                                      .isin(selected_clusters)].copy()
+
+# SECTION 1: Cluster count visualization
+st.header("Cluster Count Distribution")
+
+# Getting a dataframe with the counts for each cluster
+df_classified_filtered = df_classified[df_classified['Final_Cluster']
+                                       .isin(selected_clusters)].copy()
+
+cluster_counts = (df_classified_filtered['Final_Cluster'].value_counts()
+                  .reset_index())
+cluster_counts.columns = ['Final_Cluster', 'Count']
+
+# Plotting the counts of each cluster in a bar chart
+fig_bar = px.bar(cluster_counts,
+                 x='Final_Cluster',
+                 y='Count',
+                 title='Number of Observations per Cluster',
+                 color='Final_Cluster',
+                 labels={'Final_Cluster': 'Cluster ID'})
+
+# Disable the legend to avoid double information
+fig_bar.update_layout(showlegend=False)
+
+st.plotly_chart(fig_bar, use_container_width=True)
+
+st.markdown("---")
+
+# SECTION 2: Table of centroid values
+
 # Getting a copy of the centroids to display on a table
 df_centroids_display = df_centroids_filtered.copy()
 
 # Rename columns of the display centroids
 # dataframe using readable map
-description_col_name = 'Cluster Description'
 df_centroids_display.rename(columns=CENTROID_COLUMN_MAP, inplace=True)
 
-# Reordering columns so that the ID (and description, if it exists,
-# which in our case it always does) come first.
-# Note: Various sections of this script include fallback options in the
-# that there isn't a description column, in our data there is, but these
-# options were kept just for safety.
-has_description = description_col_name in df_centroids_display.columns
-ordered_cols = (['Cluster ID', description_col_name] if has_description
-                else ['Cluster ID'])
+# Reordering columns so that the ID and description come first.
+feature_cols = [col for col in df_centroids_display.columns
+                if col not in ['Cluster ID', 'Cluster Description']]
+df_centroids_display = df_centroids_display[
+    ['Cluster ID', 'Cluster Description'] + feature_cols]
 
-remaining_cols = [col for col in df_centroids_display.columns
-                  if col not in ordered_cols]
-df_centroids_display = df_centroids_display[ordered_cols + remaining_cols]
+# Formatting all columns to appear with 2 decimal places.
+df_centroids_display.iloc[:, 2:] = df_centroids_display.iloc[:, 2:].round(2)\
+    .map(lambda x: f"{x:.2f}")
 
-# Formatting numerical columns to have 2 decimal places
-# for consistency
-
-for col in df_centroids_display.columns:
-
-    # Getting the original feature name from the adapted
-    # display name
-    original_col = CENTROID_DISPLAY_TO_VAR.get(col)
-
-    # Ensuring that all fetures that should be in the table
-    # of centroids are there, the original set of "interpretable"
-    # features but also time and reason columns.
-    # And applying the decimal place formatting
-    is_feature = original_col in INTERPRETABLE_FEATURES
-    is_reason_or_time = ('reason:' in col.lower()
-                         or 'month' in col.lower()
-                         or 'week' in col.lower())
-    is_numeric = types.is_numeric_dtype(df_centroids_display[col])
-
-    if (is_feature or is_reason_or_time) and is_numeric:
-        df_centroids_display[col] = (df_centroids_display[col].round(2)
-                                     .map(lambda x: f"{x:.2f}"))
-
-# SECTION 1: Cluster count visualization
-if not df_classified.empty:
-    st.header("Cluster Count Distribution")
-
-    # Getting a dataframe with the counts for each cluster
-    df_classified_filtered = df_classified[df_classified['Final_Cluster']
-                                           .isin(selected_clusters)].copy()
-
-    cluster_counts = (df_classified_filtered['Final_Cluster'].value_counts()
-                      .reset_index())
-    cluster_counts.columns = ['Final_Cluster', 'Count']
-
-    fig_bar = px.bar(cluster_counts,
-                     x='Final_Cluster',
-                     y='Count',
-                     title='Number of Observations per Cluster',
-                     color='Final_Cluster',
-                     labels={'Final_Cluster': 'Cluster ID'})
-    fig_bar.update_layout(showlegend=False)
-
-    st.plotly_chart(fig_bar, use_container_width=True)
-
-st.markdown("---")
-
-# SECTION 2: Table of centroid values
 # Creating a button to toggle the cluster centroid table on or off
 st.button(('Hide' if st.session_state.show_centroids else 'Show')
           + " Centroids",
@@ -241,13 +225,10 @@ st.button(('Hide' if st.session_state.show_centroids else 'Show')
 if st.session_state.show_centroids:
     st.header("Detailed Centroids (Mean Values)")
 
-    # Drop the description column if it is included, as it doesn't make
+    # Drop the description column, as it doesn't make
     # sense to display it in a table
-    if description_col_name in df_centroids_display.columns:
-        df_centroid_values = df_centroids_display.drop(
-            columns=[description_col_name])
-    else:
-        df_centroid_values = df_centroids_display.copy()
+    df_centroid_values = df_centroids_display.drop(
+        columns=['Cluster Description'])
 
     # Show centroid table
     st.dataframe(df_centroid_values, hide_index=True, use_container_width=True)
@@ -255,6 +236,7 @@ if st.session_state.show_centroids:
 st.markdown("---")
 
 # SECTION 3: Cluster Descriptions and Suggestions
+
 # Creating a button to toggle the cluster Description and Suggestions on or off
 st.button(('Hide' if st.session_state.show_descriptions else 'Show')
           + " Descriptions",
@@ -264,82 +246,73 @@ if st.session_state.show_descriptions:
     st.subheader("Cluster Descriptions and Recommendations")
     st.markdown("---")
 
-    if description_col_name in df_centroids_display.columns:
-        # Displaying the cluster and its associated description
-        # and suggestions
-        for i, row in df_centroids_display.iterrows():
-            cluster_id = row['Cluster ID']
-            raw_description = row[description_col_name]
-            st.markdown(f"## ⭐ {cluster_id}")
-            st.markdown(raw_description)
+    # Displaying the cluster and its associated description
+    # and suggestions
+    for i, row in df_centroids_display.iterrows():
+        st.markdown(f"## ⭐ {row['Cluster ID']}")
+        st.markdown(row['Cluster Description'])
+        st.markdown("---")
 
-            if i < len(df_centroids_display) - 1:
-                st.markdown("---")
-    else:
-        st.warning("The 'Cluster Description' column "
-                   "was not found in the data.")
-
-st.markdown("---")
+# Ensuring that there is always a section separator even
+# if we are not displaying the table
+else:
+    st.markdown("---")
 
 # SECTION 4: Scatter Plot
 
+# Creating a button to toggle the scatter plot on or off
 st.button(('Hide' if st.session_state.show_scatter else 'Show')
           + " Scatter Plot",
           on_click=toggle_scatter)
 
 if st.session_state.show_scatter:
-    if not df_classified_filtered.empty:
-        st.header("Cluster Scatter Plot")
+    st.header("Cluster Scatter Plot")
 
-        # Getting the list of available columns for the plot
-        numerical_for_plot = [CENTROID_COLUMN_MAP[col]
-                              for col in df_classified_filtered.columns
-                              if col in INTERPRETABLE_FEATURES]
+    # Getting the list of available columns for the plot
+    numerical_for_plot = [CENTROID_COLUMN_MAP[col]
+                          for col in df_classified_filtered.columns
+                          if col in INTERPRETABLE_FEATURES]
 
-        # Creating the side-by-side layout
-        # for the 2 drop-down menus
-        col_x, col_y = st.columns(2)
+    # Creating the side-by-side layout
+    # for the 2 drop-down menus
+    col_x, col_y = st.columns(2)
 
-        with col_x:
-            # Creating the drop-down menu for the
-            # variable on the x axis
-            scatter_x_display = st.selectbox("Select **X-axis** Variable:",
-                                             options=numerical_for_plot,
-                                             # Sets the default option to BMI
-                                             index=4,
-                                             key='scatter_x_select')
+    with col_x:
+        # Creating the drop-down menu for the
+        # variable on the x axis
+        scatter_x_display = st.selectbox("Select **X-axis** Variable:",
+                                         options=numerical_for_plot,
+                                         # Sets the default option to BMI
+                                         index=4)
 
-        with col_y:
-            # Creating the drop-down menu for the
-            # variable on the y axis
-            scatter_y_display = st.selectbox("Select **Y-axis** Variable:",
-                                             options=numerical_for_plot,
-                                             # Sets the default option to
-                                             # be Absenteeism time
-                                             index=5,
-                                             key='scatter_y_select')
+    with col_y:
+        # Creating the drop-down menu for the
+        # variable on the y axis
+        scatter_y_display = st.selectbox("Select **Y-axis** Variable:",
+                                         options=numerical_for_plot,
+                                         # Sets the default option to
+                                         # be Absenteeism time
+                                         index=5)
 
-        # Obtain the "actual" variable name from the display name
-        # for the 2 variables to plot
-        scatter_x = CENTROID_DISPLAY_TO_VAR.get(scatter_x_display)
-        scatter_y = CENTROID_DISPLAY_TO_VAR.get(scatter_y_display)
+    # Obtain the "actual" variable name from the display name
+    # for the 2 variables to plot
+    scatter_x = CENTROID_DISPLAY_TO_VAR.get(scatter_x_display)
+    scatter_y = CENTROID_DISPLAY_TO_VAR.get(scatter_y_display)
 
-        # Plotly scatter plot with a title and axis labels
-        # and points colored based on cluster
-        fig_scatter = px.scatter(df_classified_filtered,
-                                 x=scatter_x,
-                                 y=scatter_y,
-                                 color='Final_Cluster',
-                                 title=(f"Clustering by {scatter_x_display} "
-                                        f"vs {scatter_y_display}"),
-                                 labels={scatter_x: scatter_x_display,
-                                         scatter_y: scatter_y_display,
-                                         'Final_Cluster': 'Cluster'})
+    # Plotly scatter plot with a title and axis labels
+    # and points colored based on cluster
+    fig_scatter = px.scatter(df_classified_filtered,
+                             x=scatter_x,
+                             y=scatter_y,
+                             color='Final_Cluster',
+                             title=(f"Clustering by {scatter_x_display} "
+                                    f"vs {scatter_y_display}"),
+                             labels={scatter_x: scatter_x_display,
+                                     scatter_y: scatter_y_display,
+                                     'Final_Cluster': 'Cluster'})
 
-        st.plotly_chart(fig_scatter, use_container_width=True)
+    st.plotly_chart(fig_scatter, use_container_width=True)
 
-    else:
-        st.error("No classified data loaded for visualization.")
 
 st.markdown("---")
 
@@ -347,7 +320,8 @@ st.markdown("---")
 # SECTION 5: Radar Chart
 st.header("Visual Cluster Comparison (Radar Chart)")
 st.markdown("Compare the **normalized** profiles of selected clusters "
-            "across multiple dimensions.")
+            "across multiple dimensions. We recommend having at least 5"
+            "features selected.")
 
 
 # Creating the side-by-side layout

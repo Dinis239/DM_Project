@@ -1,7 +1,6 @@
 import os
 import streamlit as st
 import pandas as pd
-import pandas.api.types as types
 import plotly.express as px
 
 # 1. Global Column Definitions and Mapping
@@ -46,14 +45,11 @@ DISPLAY_TO_VAR = {col_mapped: og_col
                   for og_col, col_mapped in COLUMN_MAP.items()}
 
 
-def map_flags_to_yes_no(dataframe, flag_columns):
+def map_flags(dataframe, flag_columns):
     """Maps 1/0 integer values in binary flag columns to 'Yes'/'No' strings."""
     mapping = {1: 'Yes', 0: 'No'}
     for col in flag_columns:
         if col in dataframe.columns:
-            # Safely convert to integer before mapping
-            dataframe[col] = pd.to_numeric(
-                dataframe[col]).astype(int)
             # Covert the column to category datatype
             dataframe[col] = dataframe[col].map(mapping).astype('category')
     return dataframe
@@ -73,7 +69,7 @@ def load_data(file_path):
                     data[col]).astype(int)
 
         # Map 1/0 to 'Yes'/'No' for flag columns
-        data = map_flags_to_yes_no(data, CORE_FLAG)
+        data = map_flags(data, CORE_FLAG)
 
         return data
 
@@ -105,10 +101,9 @@ DISPLAY_OPTIONS = [COLUMN_MAP[col] for col in all_cols
 
 st.sidebar.header("🔍 Data Filtering")
 
+
 # This function applies the filters defined in the sidebar
 # of the dashboard.
-
-
 def apply_filters(dataframe):
     """Applies all sidebar filters to the DataFrame."""
     df_filtered = dataframe.copy()
@@ -173,17 +168,7 @@ st.markdown(f"Data Source: **{data_for_analysis.shape[0]}** total absences")
 st.header("Quick Filtered Data Summary")
 
 
-def get_metric(dataframe, col):
-    """Calculates the mean and formats a key metric."""
-    if dataframe.empty or col not in dataframe.columns:
-        return "N/A"
-
-    if types.is_numeric_dtype(dataframe[col]):
-        return f"{dataframe[col].mean():.1f}"
-    return "N/A"
-
-
-# Displaying relevant metrics.
+# Displaying relevant metrics in a side-by-side column layout
 col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
@@ -191,16 +176,16 @@ with col1:
               value=filtered_df.shape[0])
 with col2:
     st.metric(label="Avg. Absenteeism (Hours)",
-              value=get_metric(filtered_df, 'absenteeism_time_in_hours'))
+              value=round(filtered_df['absenteeism_time_in_hours'].mean(), 1))
 with col3:
     st.metric(label="Avg. BMI",
-              value=get_metric(filtered_df, 'body_mass_index'))
+              value=round(filtered_df['body_mass_index'].mean(), 1))
 with col4:
     st.metric(label="Avg. Transportation Expense (€)",
-              value=get_metric(filtered_df, 'transportation_expense'))
+              value=round(filtered_df['transportation_expense'].mean(), 1))
 with col5:
     st.metric(label="Avg. Age",
-              value=get_metric(filtered_df, 'age'))
+              value=round(filtered_df['age'].mean(), 1))
 
 
 st.divider()
@@ -221,8 +206,6 @@ feature_display_name = st.selectbox(
     options=DISPLAY_OPTIONS)
 feature_to_plot = DISPLAY_TO_VAR[feature_display_name]
 
-# Placeholder for the Plotly figure
-fig = None
 
 if feature_to_plot in ALL_NUMERICAL_VARS:
     # Option to select plot type
@@ -262,10 +245,6 @@ elif feature_to_plot in CORE_CATEGORICAL or feature_to_plot in CORE_FLAG:
     if feature_to_plot == 'month_of_absence':
         # Ensuring month order
         category_order = MONTH_ORDER
-
-    elif pd.api.types.is_categorical_dtype(data_for_analysis[feature_to_plot]):
-        category_order = (
-            data_for_analysis[feature_to_plot].cat.categories.tolist())
     else:
         category_order = filtered_df[feature_to_plot].unique().tolist()
 
@@ -290,8 +269,7 @@ elif feature_to_plot in CORE_CATEGORICAL or feature_to_plot in CORE_FLAG:
 
 
 # Display the Plotly figure
-if fig:
-    st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
 
@@ -304,62 +282,47 @@ numerical_display_options = [COLUMN_MAP[col] for col in all_numerical_cols
 
 # The if and elses at the end are simply in case the data is not
 # in the right structure, which for us, in theory it should always be
-if numerical_display_options:
-    # Creating the side-by-side layout
-    # for the 2 drop-down menus
-    col_x, col_y = st.columns(2)
 
-    with col_x:
-        # Creating the drop-down menu for the
-        # variable on the x axis
-        scatter_x_display = st.selectbox("Select **X-axis** Variable:",
-                                         options=numerical_display_options,
-                                         # Sets the default option to be BMI
-                                         index=3,
-                                         key='scatter_x_select')
+# Creating the side-by-side layout
+# for the 2 drop-down menus
+col_x, col_y = st.columns(2)
 
-    with col_y:
-        # Creating the drop-down menu for the
-        # variable on the y axis
-        scatter_y_display = st.selectbox("Select **Y-axis** Variable:",
-                                         options=numerical_display_options,
-                                         # Sets the default option to
-                                         # be Absenteeism time
-                                         index=4,
-                                         key='scatter_y_select')
+with col_x:
+    # Creating the drop-down menu for the
+    # variable on the x axis
+    scatter_x_display = st.selectbox("Select **X-axis** Variable:",
+                                     options=numerical_display_options,
+                                     # Sets the default option to be BMI
+                                     index=3)
 
-    # Obtain the "actual" variable name from the display name
-    # for the 2 variables to plot
-    scatter_x = DISPLAY_TO_VAR.get(scatter_x_display)
-    scatter_y = DISPLAY_TO_VAR.get(scatter_y_display)
+with col_y:
+    # Creating the drop-down menu for the
+    # variable on the y axis
+    scatter_y_display = st.selectbox("Select **Y-axis** Variable:",
+                                     options=numerical_display_options,
+                                     # Sets the default option to
+                                     # be Absenteeism time
+                                     index=4)
 
-    if scatter_x in filtered_df.columns and scatter_y in filtered_df.columns:
-        if (types.is_numeric_dtype(filtered_df[scatter_x]) and
-                types.is_numeric_dtype(filtered_df[scatter_y])):
+# Obtain the "actual" variable name from the display name
+# for the 2 variables to plot
+scatter_x = DISPLAY_TO_VAR.get(scatter_x_display)
+scatter_y = DISPLAY_TO_VAR.get(scatter_y_display)
 
-            # Plotly scatter plot with OLS trendline
-            # with a title and axis labels
-            fig_scatter = px.scatter(filtered_df,
-                                     x=scatter_x,
-                                     y=scatter_y,
-                                     trendline="ols",
-                                     title=(f'{scatter_x_display} vs '
-                                            f'{scatter_y_display} '
-                                            f'(Filtered Data)'),
-                                     labels={scatter_x: scatter_x_display,
-                                             scatter_y: scatter_y_display},
-                                     opacity=0.6,
-                                     color_discrete_sequence=["#009B0D"],
-                                     trendline_color_override='red')
 
-            st.plotly_chart(fig_scatter, use_container_width=True)
-        else:
-            st.warning(f"Columns '{scatter_x_display}' and/or "
-                       f"'{scatter_y_display}' are not strictly numeric in the"
-                       f" filtered data. Cannot create scatter plot.")
-    else:
-        st.warning("Selected columns were not found in the loaded dataset. "
-                   "Please check your data file.")
+# Plotly scatter plot with OLS trendline
+# with a title and axis labels
+fig_scatter = px.scatter(filtered_df,
+                         x=scatter_x,
+                         y=scatter_y,
+                         trendline="ols",
+                         title=(f'{scatter_x_display} vs '
+                                f'{scatter_y_display} '
+                                f'(Filtered Data)'),
+                         labels={scatter_x: scatter_x_display,
+                                 scatter_y: scatter_y_display},
+                         opacity=0.6,
+                         color_discrete_sequence=["#009B0D"],
+                         trendline_color_override='red')
 
-else:
-    st.warning("No numerical columns found to create a scatter plot.")
+st.plotly_chart(fig_scatter, use_container_width=True)
