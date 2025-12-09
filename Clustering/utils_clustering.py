@@ -3,6 +3,7 @@ import seaborn as sns
 import numpy as np
 import math
 import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 
 
 def visualize_dimensionality_reduction(transformation: np.array,
@@ -67,3 +68,42 @@ def boxplot_grid(data: pd.DataFrame,
         axes[-i].axis('off')
     plt.tight_layout()
     plt.show()
+
+
+def plot_comparing_avr_clusters(clusters_centroids_data: pd.DataFrame,
+                                colum_to_keep: str) -> None:
+    '''
+    Create a plot with the mean distribution per cluster group
+
+    Arguments:
+        ----------
+         - clusters_centroids_data(pd.DataFrame): dataframe
+         grouped by cluster.
+         - colum_to_keep(str): name of the column containing
+         the label of each cluster
+
+    Returns:
+        ----------
+         None, but a scatterplot is produced.
+    '''
+    _mean_row = ['mean'] + list(clusters_centroids_data.iloc[:, 1:].mean())
+
+    cluster_centroids_analysis = clusters_centroids_data._append(pd.Series(
+        _mean_row,
+        index=list(clusters_centroids_data.columns)),
+        ignore_index=True)
+
+    # Normalize the values
+    cluster_centroids_analysis.iloc[:, 1:] = list(MinMaxScaler().fit_transform(
+        cluster_centroids_analysis.iloc[:, 1:]))
+
+    # Transform to long format
+    melt_data = pd.melt(cluster_centroids_analysis,
+                        id_vars=colum_to_keep,
+                        var_name='variable',
+                        value_name='value')
+
+    sns.set_style("whitegrid")
+    sns.scatterplot(melt_data, x='value', y='variable',
+                    hue=colum_to_keep, s=100)
+    plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
