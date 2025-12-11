@@ -8,12 +8,14 @@ For more practical ease of use all of the datasets that are exported and require
 
 Below is the structure of the delivery:
 - Datasets Folder:
-  - absenteesim_data - Raw dataset
-  - data_for_modeling - Preprocessed data to input into models
-  - data_for_analysis - Preprocessed data to analyze clusters and compare clustering solutions
-  - data_for_dashboard - Used for the streamlit dashboard. Similar to data_for_analysis, but without dummy encoding.
-  - SOM_8_clusters_labels.csv - Cluster labels for SOM (needed to analyze results in line with the rest of the clustering notebook)
-  - classified_data - data_for_analysis but with final cluster labels
-  - final_cluster_centroids - Mean values for all variables per cluster
+  + absenteesim_data.csv - Raw dataset
+  + data_for_modeling.csv - Preprocessed dataset to input into models
+  + data_for_analysis.csv - Preprocessed dataset to analyze clusters and compare clustering solutions
+  + data_for_dashboard.csv - Used for the streamlit dashboard. Similar to data_for_analysis, but without dummy 
+  encoding.
+  + SOM_8_clusters_labels.csv - Cluster labels for SOM (needed to analyze results in line with the rest of the clustering notebook)
+  + classified_data.csv - data_for_analysis but with final cluster labels
+  + final_cluster_centroids.csv - Dataset with mean values for all variables per cluster
 - Pre-processing folder:
-  - 
+  + EDA_Preprocessing.ipynb - Jupyter notebook containing the technical implementation of the Exploratory Data Analysis and Preprocessing stages of the project.
+  + utils_preprocessing.py - Python script with auxiliary functions used in the notebook
