@@ -7,8 +7,8 @@ For clarity, this project has been split into multiple notebooks which work in a
 For more practical ease of use all of the datasets that are exported and required in future notebooks have been exported to the datasets folder allowing for the option to run one notebook without having to run all of the previous ones.
 
 Below is the structure of the delivery:
- - Datasets Folder:
-  - absenteesim_data - Raw dataset
+- Datasets Folder:
+- - absenteesim_data - Raw dataset
   - data_for_modeling - Preprocessed data to input into models
   - data_for_analysis - Preprocessed data to analyze clusters and compare clustering solutions
   - data_for_dashboard - Used for the streamlit dashboard. Similar to data_for_analysis, but without dummy encoding.
