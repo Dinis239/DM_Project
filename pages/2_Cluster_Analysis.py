@@ -325,7 +325,7 @@ st.markdown("---")
 st.header("Visual Cluster Comparison (Radar Chart)")
 st.markdown("Compare the **normalized** profiles of selected clusters "
             "across multiple dimensions. We recommend having at least 5"
-            "features selected.")
+            " features selected.")
 
 
 # Creating the side-by-side layout
