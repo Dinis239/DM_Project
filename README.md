@@ -6,7 +6,7 @@
 - Leonor Cardoso - 20250546
 - Margarida Cruz - 20221929
 
-In this project, we will tackle the task of seggregating and profiling absences of  employees of a brazilian company based on a dataset which include anonymized data about absences including absence-specific information and information about the employee committing each absence.
+In this project, we will tackle the task of seggregating and profiling absences of employees of a brazilian company based on a dataset which include anonymized data about absences including absence-specific information and information about the employee committing each absence.
 
 For clarity, this project has been split into multiple notebooks which work in a chain-like way where data is exported from one notebook to the next. For this reason, in theory, it is better to run all notebooks in order.
 
