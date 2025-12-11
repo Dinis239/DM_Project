@@ -74,6 +74,7 @@ def plot_comparing_avr_clusters(clusters_centroids_data: pd.DataFrame,
                                 colum_to_keep: str) -> None:
     '''
     Create a plot with the mean distribution per cluster group
+    and the overall mean
 
     Arguments:
         ----------
@@ -86,12 +87,12 @@ def plot_comparing_avr_clusters(clusters_centroids_data: pd.DataFrame,
         ----------
          None, but a scatterplot is produced.
     '''
-    _mean_row = ['mean'] + list(clusters_centroids_data.iloc[:, 1:].mean())
+    mean_row = pd.DataFrame([['Overal Mean'] +
+                            list(clusters_centroids_data.iloc[:, 1:].mean())],
+                            columns=clusters_centroids_data.columns)
 
-    cluster_centroids_analysis = clusters_centroids_data._append(pd.Series(
-        _mean_row,
-        index=list(clusters_centroids_data.columns)),
-        ignore_index=True)
+    cluster_centroids_analysis = pd.concat([clusters_centroids_data,
+                                            mean_row])
 
     # Normalize the values
     cluster_centroids_analysis.iloc[:, 1:] = list(MinMaxScaler().fit_transform(

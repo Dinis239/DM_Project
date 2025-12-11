@@ -213,7 +213,7 @@ feature_cols = [col for col in df_centroids_display.columns
 df_centroids_display = df_centroids_display[
     ['Cluster ID', 'Cluster Description'] + feature_cols]
 
-# Formatting all columns to appear with 2 decimal places.
+# Formatting all numerical columns to appear with 2 decimal places.
 df_centroids_display.iloc[:, 2:] = df_centroids_display.iloc[:, 2:].round(2)\
     .map(lambda x: f"{x:.2f}")
 
@@ -249,7 +249,7 @@ if st.session_state.show_descriptions:
     # Displaying the cluster and its associated description
     # and suggestions
     for i, row in df_centroids_display.iterrows():
-        st.markdown(f"## ⭐ {row['Cluster ID']}")
+        st.markdown(f"## {row['Cluster ID']}")
         st.markdown(row['Cluster Description'])
         st.markdown("---")
 

@@ -26,11 +26,11 @@ Below is the structure of the delivery:
   + classified_data.csv - data_for_analysis but with final cluster labels
   + final_cluster_centroids.csv - Dataset with mean values for all variables per cluster
 - Pre-processing folder:
-  + EDA_Preprocessing.ipynb - Jupyter notebook containing the technical implementation of the Exploratory Data Analysis and Preprocessing stages of the project.
+  + EDA_Preprocessing.ipynb - First Notebook - Jupyter notebook containing the technical implementation of the Exploratory Data Analysis and Preprocessing stages of the project.
   + utils_preprocessing.py - Python script with auxiliary functions used in the EDA_Preprocessing notebook
 - Clustering folder:
-  + Clustering.ipynb - Jupyter notebook containing the technical implementation of the Cluster Modeling stage of the project.
-  + Cluster_analysis.ipynb - Jupyter notebook containing the analysis of the final clusters
+  + Clustering.ipynb - Second Notebook - Jupyter notebook containing the technical implementation of the Cluster Modeling stage of the project.
+  + Cluster_analysis.ipynb - Third Notebook - Jupyter notebook containing the analysis of the final clusters
   + utils_clustering.py - Python script with auxiliary functions used in the notebooks of the folder
 - Pages folder:
   + 1_Exploratory_Analysis.py - Python script contain the technical implementation of the "Exploratory Analysis" page of the streamlit dashboard

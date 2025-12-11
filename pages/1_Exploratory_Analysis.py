@@ -310,8 +310,8 @@ scatter_x = DISPLAY_TO_VAR.get(scatter_x_display)
 scatter_y = DISPLAY_TO_VAR.get(scatter_y_display)
 
 if scatter_x != scatter_y:
-    # Plotly scatter plot with OLS trendline
-    # with a title and axis labels
+    # Plotly scatter plot with OLS linear
+    # trendline with a title and axis labels
     fig_scatter = px.scatter(filtered_df,
                              x=scatter_x,
                              y=scatter_y,
