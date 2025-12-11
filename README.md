@@ -17,6 +17,7 @@ If you wish to run the project locally, we recommend creating a virtual environm
 - 2 - Run the following command  "conda activate DM1_Group15_2025env"
 - 3 - Within the anaconda prompt navigate to where the delivery is, entering the delivery folder. Copy the path of the delivery folder and put "cd" followed by the path in the prompt
 - 4 - Run the following command "pip install -r requirements.txt" 
+Then select the environment as interpreter when running the code (in VS code or any other option).
 
 Below is the structure of the delivery:
 - requirements.txt - Contains the list of required packages and versions to run the project.
