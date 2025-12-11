@@ -1,4 +1,10 @@
 # Data Mining 1 Project - Employee Absence Segmentation
+## Group 15
+**Members:**
+- Beatriz Boura - 20250272
+- Dinis Gaspar - 20221869
+- Leonor Cardoso - 20250546
+- Margarida Cruz - 20221929
 
 In this project, we will tackle the task of seggregating and profiling absences of  employees of a brazilian company based on a dataset which include anonymized data about absences including absence-specific information and information about the employee committing each absence.
 
