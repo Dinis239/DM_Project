@@ -18,6 +18,7 @@ If you wish to run the project locally, we recommend creating a virtual environm
 - 3 - Within the anaconda prompt navigate to where the delivery is, entering the delivery folder. Copy the path of the delivery folder and put "cd" followed by the path in the prompt
 - 4 - Run the following command "pip install -r requirements.txt" 
 Then select the environment as interpreter when running the code (in VS code or any other option).
+After doing the steps above, if you wish to run the dashboard locally (not needed as it's the same as the deployed app) simply run "streamlit run .\0_Home.py" in the terminal, ensuring the environment is active beforehand. 
 
 Below is the structure of the delivery:
 - requirements.txt - Contains the list of required packages and versions to run the project.
