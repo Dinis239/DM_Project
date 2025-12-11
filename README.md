@@ -30,7 +30,7 @@ Below is the structure of the delivery:
   + data_for_analysis.csv - Preprocessed dataset to analyze clusters and compare clustering solutions
   + data_for_dashboard.csv - Used for the streamlit dashboard. Similar to data_for_analysis, but without dummy 
   encoding.
-  + SOM_8_clusters_labels.csv - Cluster labels for SOM (needed to analyze results in line with the rest of the clustering notebook)
+  + SOM_8_clusters_labels.csv - Cluster labels for SOM (needed to analyze results in line with the rest of the clustering notebook, since the SOMPY pacakage has compatibility issues)
   + classified_data.csv - data_for_analysis but with final cluster labels
   + final_cluster_centroids.csv - Dataset with mean values for all variables per cluster
 - Pre-processing folder:
@@ -40,6 +40,7 @@ Below is the structure of the delivery:
   + Clustering.ipynb - Second Notebook - Jupyter notebook containing the technical implementation of the Cluster Modeling stage of the project.
   + Cluster_analysis.ipynb - Third Notebook - Jupyter notebook containing the analysis of the final clusters
   + utils_clustering.py - Python script with auxiliary functions used in the notebooks of the folder
+  + Images folder - Contains images of SOM-related outputs to be used in the notebook
 - Pages folder:
   + 1_Exploratory_Analysis.py - Python script contain the technical implementation of the "Exploratory Analysis" page of the streamlit dashboard
   + 2_Cluster_Analysis.py - Python script contain the technical implementation of the "Cluster Analysis" page of the streamlit dashboard
