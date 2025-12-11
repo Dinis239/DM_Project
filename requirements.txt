@@ -72,7 +72,6 @@ scipy==1.16.3
 seaborn==0.13.2
 six==1.17.0
 smmap==5.0.2
-SOMPY @ git+https://github.com/sevamoo/SOMPY.git@6aca604b06e5eea1391ecf507810c7aabafc3f8b
 stack-data==0.6.3
 statsmodels==0.14.5
 streamlit==1.51.0
