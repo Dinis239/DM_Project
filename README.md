@@ -13,7 +13,7 @@ For clarity, this project has been split into multiple notebooks which work in a
 For more practical ease of use all of the datasets that are exported and required in future notebooks have been exported to the datasets folder allowing for the option to run one notebook without having to run all of the previous ones.
 
 If you wish to run the project locally, we recommend creating a virtual environment with Python version 3.12.4, ipython and pip. Then using pip install all required packages from the requirements.txt file. With anaconda this process would be as follows. In the Anaconda prompt:
-- 1 - Run the following command "create --name DM1_Group15_2025env python=3.12.4 ipython pip" - You may change the name
+- 1 - Run the following command "conda create --name DM1_Group15_2025env python=3.12.4 ipython pip" - You may change the name
 - 2 - Run the following command  "conda activate DM1_Group15_2025env"
 - 3 - Within the anaconda prompt navigate to where the delivery is, entering the delivery folder. Copy the path of the delivery folder and put "cd" followed by the path in the prompt
 - 4 - Run the following command "pip install -r requirements.txt" 
